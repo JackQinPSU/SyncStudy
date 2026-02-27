@@ -7,11 +7,12 @@ const INIT_TOPICS  = ["Recursion", "Big-O Notation", "Sorting Algorithms", "Grap
 const INIT_MEMBERS = ["Alice", "Bob", "Carol", "Dave"];
 
 export default function SetupForm({ onSubmit }) {
-  const [course,     setCourse]     = useState("Data Structures & Algorithms");
-  const [examDate,   setExamDate]   = useState("");
-  const [topics,     setTopics]     = useState(INIT_TOPICS);
-  const [topicInput, setTopicInput] = useState("");
-  const [members,    setMembers]    = useState(
+  const [course,       setCourse]       = useState("Data Structures & Algorithms");
+  const [examDate,     setExamDate]     = useState("");
+  const [topics,       setTopics]       = useState(INIT_TOPICS);
+  const [topicInput,   setTopicInput]   = useState("");
+  const [memberInput,  setMemberInput]  = useState("");
+  const [members,      setMembers]      = useState(
     INIT_MEMBERS.map(name => ({
       name,
       scores: Object.fromEntries(INIT_TOPICS.map(t => [t, 3])),
@@ -22,6 +23,21 @@ export default function SetupForm({ onSubmit }) {
     setMembers(prev => prev.map((m, i) =>
       i !== mi ? m : { ...m, scores: { ...m.scores, [topic]: Number(val) } }
     ));
+  }
+
+  function renameMember(mi, name) {
+    setMembers(prev => prev.map((m, i) => i !== mi ? m : { ...m, name }));
+  }
+
+  function addMember() {
+    const name = memberInput.trim();
+    if (!name || members.some(m => m.name === name)) return;
+    setMembers(p => [...p, { name, scores: Object.fromEntries(topics.map(t => [t, 3])) }]);
+    setMemberInput("");
+  }
+
+  function removeMember(mi) {
+    setMembers(prev => prev.filter((_, i) => i !== mi));
   }
 
   function addTopic() {
@@ -82,12 +98,19 @@ export default function SetupForm({ onSubmit }) {
             <tr>
               <th>Member</th>
               {topics.map(t => <th key={t}>{t}</th>)}
+              <th style={{width:"36px"}}></th>
             </tr>
           </thead>
           <tbody>
             {members.map((m, mi) => (
-              <tr key={m.name}>
-                <td><strong>{m.name}</strong></td>
+              <tr key={mi}>
+                <td>
+                  <input
+                    value={m.name}
+                    onChange={e => renameMember(mi, e.target.value)}
+                    style={{ width: "110px", padding: "0.25rem 0.5rem", fontSize: "0.88rem" }}
+                  />
+                </td>
                 {topics.map(t => {
                   const v = m.scores[t] ?? 3;
                   return (
@@ -101,8 +124,30 @@ export default function SetupForm({ onSubmit }) {
                     </td>
                   );
                 })}
+                <td style={{ textAlign: "center" }}>
+                  <button
+                    type="button"
+                    onClick={() => removeMember(mi)}
+                    style={{ background: "none", border: "none", color: "#e74c3c", cursor: "pointer", fontSize: "1.1rem", lineHeight: 1 }}
+                    title="Remove member"
+                  >×</button>
+                </td>
               </tr>
             ))}
+            <tr>
+              <td colSpan={topics.length + 2}>
+                <div className="row" style={{ margin: 0 }}>
+                  <input
+                    placeholder="New member name..."
+                    value={memberInput}
+                    onChange={e => setMemberInput(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addMember())}
+                    style={{ fontSize: "0.88rem", padding: "0.25rem 0.5rem" }}
+                  />
+                  <button type="button" className="btn-add" onClick={addMember}>Add</button>
+                </div>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
