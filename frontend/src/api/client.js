@@ -24,3 +24,6 @@ export const generateQuestions = (topic, course, depth = "normal") =>
 
 export const generateReport = (sessionInput, prioritizedTopics) =>
   post("/report", { session_input: sessionInput, prioritized_topics: prioritizedTopics });
+
+export const gradeAnswer = (question, correctAnswer, userAnswer) =>
+  post("/grade", { question, correct_answer: correctAnswer, user_answer: userAnswer });

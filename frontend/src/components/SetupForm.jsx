@@ -9,6 +9,7 @@ const INIT_MEMBERS = ["Alice", "Bob", "Carol", "Dave"];
 export default function SetupForm({ onSubmit }) {
   const [course,       setCourse]       = useState("Data Structures & Algorithms");
   const [examDate,     setExamDate]     = useState("");
+  const [duration,     setDuration]     = useState(60);
   const [topics,       setTopics]       = useState(INIT_TOPICS);
   const [topicInput,   setTopicInput]   = useState("");
   const [memberInput,  setMemberInput]  = useState("");
@@ -58,7 +59,7 @@ export default function SetupForm({ onSubmit }) {
   function handleSubmit(e) {
     e.preventDefault();
     if (!examDate) return alert("Please enter an exam date.");
-    onSubmit({ course, exam_date: examDate, topics, members });
+    onSubmit({ course, exam_date: examDate, duration_minutes: duration, topics, members });
   }
 
   const scoreColor = v => ["#e74c3c","#e67e22","#f1c40f","#2ecc71","#27ae60"][v - 1];
@@ -72,6 +73,14 @@ export default function SetupForm({ onSubmit }) {
 
       <label>Exam Date</label>
       <input type="date" value={examDate} onChange={e => setExamDate(e.target.value)} />
+
+      <label>Session Duration (minutes)</label>
+      <input
+        type="number" min="15" max="480" step="5"
+        value={duration}
+        onChange={e => setDuration(Number(e.target.value))}
+        style={{ width: "120px" }}
+      />
 
       <label>Topics</label>
       <div className="topic-list">

@@ -24,6 +24,7 @@ router.post("/", async (req, res) => {
     const data = await generateSessionPlan(
       session_input.course,
       session_input.exam_date,
+      session_input.duration_minutes ?? 60,
       enriched
     );
     res.json(data);
