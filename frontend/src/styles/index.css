@@ -194,6 +194,66 @@ th { background: #1e2130; color: #aaa; font-size: 0.8rem; text-transform: upperc
   border-radius: 8px; padding: 1rem; color: #27ae60; margin-top: 1rem; line-height: 1.5;
 }
 
+/* ── Speech-to-text ── */
+.textarea-wrap {
+  position: relative;
+  margin: 0.6rem 0 0.5rem;
+}
+.textarea-wrap textarea {
+  margin: 0; /* wrapper handles spacing */
+}
+.mic-btn {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  background: #2a2d3a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  transition: background 0.2s, border-color 0.2s;
+  padding: 0;
+}
+.mic-btn:hover { background: #3a3d4a; border-color: #666; }
+.mic-btn.active {
+  background: #e74c3c22;
+  border-color: #e74c3c;
+  animation: pulse-mic 1.2s ease-in-out infinite;
+}
+@keyframes pulse-mic {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.5); }
+  50%       { box-shadow: 0 0 0 6px rgba(231, 76, 60, 0); }
+}
+.interim-text {
+  color: #777;
+  font-size: 0.8rem;
+  font-style: italic;
+  margin: -0.2rem 0 0.5rem;
+  line-height: 1.5;
+}
+.listening-pulse {
+  animation: fade-listening 1.4s ease-in-out infinite;
+}
+@keyframes fade-listening {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}
+.stt-unsupported {
+  color: #888;
+  font-size: 0.82rem;
+  background: #1a1d27;
+  border: 1px solid #2a2d3a;
+  border-radius: 6px;
+  padding: 0.5rem 0.85rem;
+  margin-bottom: 0.8rem;
+}
+
 /* ── Banners ── */
 .error-banner {
   background: #e74c3c18; color: #e74c3c; border: 1px solid #e74c3c;

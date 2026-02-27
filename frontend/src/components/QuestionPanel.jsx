@@ -1,9 +1,11 @@
 // ─────────────────────────────────────────
 // Loads + displays practice questions for a topic.
 // Supports easier/harder depth and per-question answer grading.
+// Speech-to-text: click the 🎤 button to dictate your answer.
 // ─────────────────────────────────────────
 import { useState, useEffect } from "react";
 import { generateQuestions, gradeAnswer } from "../api/client";
+import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 
 const TYPE_COLORS = { conceptual: "#3498db", application: "#27ae60", debugging: "#e74c3c", comparison: "#9b59b6" };
 
@@ -23,7 +25,18 @@ export default function QuestionPanel({ topic, course }) {
   const [results,      setResults]      = useState({});
   const [grading,      setGrading]      = useState({});
 
+  // Speech-to-text state
+  const [listeningFor, setListeningFor] = useState(null); // question index currently recording
+  const [interimMap,   setInterimMap]   = useState({});   // live interim text per question
+
+  const { isSupported, start, stop } = useSpeechRecognition();
+
   async function load(newDepth) {
+    // Stop any active microphone before resetting
+    stop();
+    setListeningFor(null);
+    setInterimMap({});
+
     setLoading(true);
     setDepth(newDepth);
     setHints({});
@@ -54,12 +67,49 @@ export default function QuestionPanel({ topic, course }) {
     }
   }
 
+  function toggleMic(i) {
+    if (listeningFor === i) {
+      // Already recording for this question — stop
+      stop();
+      setListeningFor(null);
+      setInterimMap(m => ({ ...m, [i]: "" }));
+    } else {
+      // Stop any other question's recording, then start for this one
+      if (listeningFor !== null) stop();
+      setListeningFor(i);
+      setInterimMap(m => ({ ...m, [i]: "" }));
+
+      start(
+        // onFinal: append finalized speech to the answer
+        (text) => {
+          setUserAnswers(a => ({ ...a, [i]: (a[i] ?? "").trimEnd() + (a[i] ? " " : "") + text }));
+        },
+        // onInterim: show live preview
+        (interim) => {
+          setInterimMap(m => ({ ...m, [i]: interim }));
+        },
+        // onEnd: recognition stopped (silence timeout, user stopped, etc.)
+        () => {
+          setListeningFor(null);
+          setInterimMap(m => ({ ...m, [i]: "" }));
+        }
+      );
+    }
+  }
+
   if (loading) return <div className="q-panel"><p style={{color:"#888"}}>⏳ Generating questions...</p></div>;
 
   return (
     <div className="q-panel">
+      {!isSupported && (
+        <p className="stt-unsupported">
+          🎤 Speech-to-text is not supported in this browser. Use Chrome or Edge to enable it.
+        </p>
+      )}
+
       {questions.map((q, i) => {
         const result = results[i];
+        const isRecording = listeningFor === i;
         return (
           <div key={q.id ?? i} className="question-card">
             <div className="q-header">
@@ -74,12 +124,34 @@ export default function QuestionPanel({ topic, course }) {
 
             <p className="q-text">{q.question}</p>
 
-            <textarea
-              placeholder="Type your answer here..."
-              value={userAnswers[i] ?? ""}
-              onChange={e => setUserAnswers(a => ({ ...a, [i]: e.target.value }))}
-              disabled={!!result}
-            />
+            {/* Textarea + mic button */}
+            <div className="textarea-wrap">
+              <textarea
+                placeholder={isSupported ? "Type or speak your answer…" : "Type your answer here..."}
+                value={userAnswers[i] ?? ""}
+                onChange={e => setUserAnswers(a => ({ ...a, [i]: e.target.value }))}
+                disabled={!!result}
+                style={isSupported && !result ? { paddingRight: "2.8rem" } : {}}
+              />
+              {isSupported && !result && (
+                <button
+                  className={`mic-btn${isRecording ? " active" : ""}`}
+                  onClick={() => toggleMic(i)}
+                  title={isRecording ? "Stop recording" : "Speak your answer"}
+                  type="button"
+                >
+                  🎤
+                </button>
+              )}
+            </div>
+
+            {/* Live interim speech preview */}
+            {isRecording && interimMap[i] && (
+              <p className="interim-text">🎙️ {interimMap[i]}</p>
+            )}
+            {isRecording && !interimMap[i] && (
+              <p className="interim-text listening-pulse">🎙️ Listening…</p>
+            )}
 
             {!result && (
               <button
