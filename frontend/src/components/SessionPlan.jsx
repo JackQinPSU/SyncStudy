@@ -1,62 +1,62 @@
-// ─────────────────────────────────────────
-// Step 3: 60-min session plan with roles + expandable question panels
-// ─────────────────────────────────────────
 import { useState } from "react";
 import QuestionPanel from "./QuestionPanel";
-
-const ROLE_COLORS = {
-  Explainer:  "#3498db",
-  Questioner: "#e74c3c",
-  Challenger: "#9b59b6",
-  Reviewer:   "#27ae60",
-};
 
 export default function SessionPlan({ plan, sessionInput, onFinish }) {
   const [activeBlock, setActiveBlock] = useState(null);
   const blocks = plan?.session_plan ?? [];
 
   return (
-    <div className="card">
-      <h2>60-Minute Session Plan</h2>
-      <p className="subtitle-text">Click a block to open practice questions.</p>
+    <>
+      <div className="page-head">
+        <p className="page-eyebrow">Step 3 of 4</p>
+        <h1 className="page-title">Your session plan.</h1>
+        <p className="page-sub">Work through each block. Open any block to practice questions.</p>
+      </div>
 
-      <div className="blocks-list">
+      <div className="timeline" style={{ marginBottom: "40px" }}>
         {blocks.map((block, i) => (
-          <div key={i} className="block-card">
-            <div className="block-header">
-              <span className="block-num">Block {block.block}</span>
-              <span className="block-topic">{block.topic}</span>
-              <span className="block-duration">⏱ {block.duration_minutes} min</span>
-            </div>
+          <div key={i} className="timeline-item">
+            <div className="block-card">
+              <div className="block-header">
+                <div className="block-num">{block.block}</div>
+                <span className="block-topic">{block.topic}</span>
+                <span className="block-duration">{block.duration_minutes} min</span>
+              </div>
 
-            <p className="block-goal">🎯 {block.goal}</p>
-
-            <div className="roles-row">
-              {Object.entries(block.roles ?? {}).map(([role, person]) => (
-                <div key={role} className="role-badge" style={{ borderLeft: `4px solid ${ROLE_COLORS[role] ?? "#888"}` }}>
-                  <span className="role-name">{role}</span>
-                  <span className="role-person">{person}</span>
+              <div className="block-body">
+                <p className="block-goal">{block.goal}</p>
+                <div className="roles-grid">
+                  {Object.entries(block.roles ?? {}).map(([role, person]) => (
+                    <div key={role} className="role-pill">
+                      <span className="role-label-text">{role}</span>
+                      <span className="role-person-name">{person}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+
+              <button
+                className="q-toggle"
+                onClick={() => setActiveBlock(activeBlock === i ? null : i)}
+                type="button"
+              >
+                <span>Practice Questions</span>
+                <span className={`q-toggle-chevron${activeBlock === i ? " open" : ""}`}>▼</span>
+              </button>
+
+              {activeBlock === i && (
+                <QuestionPanel topic={block.topic} course={sessionInput.course} />
+              )}
             </div>
-
-            <button
-              className="btn-secondary"
-              onClick={() => setActiveBlock(activeBlock === i ? null : i)}
-            >
-              {activeBlock === i ? "▲ Hide Questions" : "▼ Practice Questions"}
-            </button>
-
-            {activeBlock === i && (
-              <QuestionPanel topic={block.topic} course={sessionInput.course} />
-            )}
           </div>
         ))}
       </div>
 
-      <button className="btn-primary" onClick={onFinish} style={{ marginTop: "2rem" }}>
-        Generate Post-Session Report →
-      </button>
-    </div>
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <button className="btn btn-dark btn-lg" onClick={onFinish}>
+          Generate Report →
+        </button>
+      </div>
+    </>
   );
 }

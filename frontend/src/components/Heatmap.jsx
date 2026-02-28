@@ -1,69 +1,68 @@
-// ─────────────────────────────────────────
-// Step 2: Weakness heatmap — the "wow factor" visual
-// ─────────────────────────────────────────
 export default function Heatmap({ sessionInput, weaknesses, onNext }) {
   const { members, topics } = sessionInput;
 
-  const cellColor = s => s <= 2 ? "#e74c3c" : s === 3 ? "#f39c12" : "#27ae60";
-  const priorityTag = p => p === 1 ? "🔴 Critical" : p <= 3 ? "🟡 Important" : "🟢 Solid";
+  const heatClass    = s => s <= 1 ? "h1" : s === 2 ? "h2" : s === 3 ? "h3" : s === 4 ? "h4" : "h5";
+  const priorityClass = p => p === 1 ? "p-critical" : p <= 3 ? "p-important" : "p-solid";
+  const tagClass      = p => p === 1 ? "tag-critical" : p <= 3 ? "tag-important" : "tag-solid";
+  const tagLabel      = p => p === 1 ? "Critical" : p <= 3 ? "Important" : "Solid";
 
   return (
-    <div className="card">
-      <h2>Group Weakness Map</h2>
-      <p className="subtitle-text">
-        Red cells = everyone struggles here. These get the most session time.
-      </p>
+    <>
+      <div className="page-head">
+        <p className="page-eyebrow">Step 2 of 4</p>
+        <h1 className="page-title">Here's where you need work.</h1>
+        <p className="page-sub">
+          Red cells mean the group struggles here — these topics get the most session time.
+        </p>
+      </div>
 
-      <div className="table-wrapper">
-        <table className="heatmap-table">
-          <thead>
-            <tr>
-              <th>Member \ Topic</th>
-              {topics.map(t => <th key={t}>{t}</th>)}
-            </tr>
-          </thead>
-          <tbody>
-            {members.map(m => (
-              <tr key={m.name}>
-                <td><strong>{m.name}</strong></td>
-                {topics.map(t => {
-                  const v = m.scores[t] ?? 3;
-                  return (
-                    <td key={t} style={{
-                      background: cellColor(v),
-                      color: "#fff",
-                      fontWeight: "bold",
-                      textAlign: "center",
-                      fontSize: "1.1rem",
-                      borderRadius: "4px",
-                      padding: "10px 14px",
-                    }}>{v}</td>
-                  );
-                })}
+      <div style={{ marginBottom: "32px" }}>
+        <p className="section-label" style={{ marginBottom: "10px" }}>Confidence Heatmap</p>
+        <div className="data-table-wrap">
+          <table className="heatmap-table">
+            <thead>
+              <tr>
+                <th>Member</th>
+                {topics.map(t => <th key={t}>{t}</th>)}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {members.map(m => (
+                <tr key={m.name}>
+                  <td>{m.name}</td>
+                  {topics.map(t => {
+                    const v = m.scores[t] ?? 3;
+                    return <td key={t} className={heatClass(v)}>{v}</td>;
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <h3>Priority Ranking</h3>
-      <div className="priority-list">
-        {weaknesses.map(w => (
-          <div key={w.topic} className="priority-row">
-            <span className="priority-num">#{w.priority}</span>
-            <span className="priority-topic">{w.topic}</span>
-            <span className="priority-avg">avg {w.avg_score}/5</span>
-            <span className="priority-label">{priorityTag(w.priority)}</span>
-            {w.weak_members.length > 0 && (
-              <span className="weak-members">⚠️ {w.weak_members.join(", ")} need help</span>
-            )}
-          </div>
-        ))}
+      <div style={{ marginBottom: "40px" }}>
+        <p className="section-label" style={{ marginBottom: "10px" }}>Priority Ranking</p>
+        <div className="priority-list">
+          {weaknesses.map(w => (
+            <div key={w.topic} className="priority-item">
+              <div className={`priority-num ${priorityClass(w.priority)}`}>{w.priority}</div>
+              <span className="priority-topic">{w.topic}</span>
+              {w.weak_members.length > 0 && (
+                <span className="weak-members-text">{w.weak_members.join(", ")} need help</span>
+              )}
+              <span className="priority-avg">{w.avg_score}/5</span>
+              <span className={`priority-tag ${tagClass(w.priority)}`}>{tagLabel(w.priority)}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <button className="btn-primary" onClick={onNext}>
-        Generate 60-Min Session Plan →
-      </button>
-    </div>
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <button className="btn btn-dark btn-lg" onClick={onNext}>
+          Generate Session Plan →
+        </button>
+      </div>
+    </>
   );
 }

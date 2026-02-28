@@ -1,41 +1,59 @@
-// ─────────────────────────────────────────
-// Step 4: Post-session weakness report
-// ─────────────────────────────────────────
 export default function ReportCard({ report }) {
   const r = report?.report;
-  if (!r) return <div className="card"><p>No report data available.</p></div>;
+  if (!r) return (
+    <div style={{ padding: "40px 0", textAlign: "center", color: "var(--text-3)" }}>
+      No report data available.
+    </div>
+  );
 
   return (
-    <div className="card">
-      <h2>📊 Post-Session Report</h2>
-
-      <div className="report-summary"><p>{r.summary}</p></div>
-
-      <h3>🚨 Critical Topics Before Exam</h3>
-      <div className="topic-list">
-        {r.critical_topics?.map(t => (
-          <span key={t} className="topic-chip danger">{t}</span>
-        ))}
+    <>
+      <div className="page-head">
+        <p className="page-eyebrow">Step 4 of 4</p>
+        <h1 className="page-title">Session complete.</h1>
+        <p className="page-sub">Here's what your group should focus on before the exam.</p>
       </div>
 
-      <h3>👤 Per-Member Action Plan</h3>
-      <div className="member-reports">
-        {r.per_member?.map(m => (
-          <div key={m.name} className="member-report-card">
-            <h4>{m.name}</h4>
-            <p><strong>Focus on: </strong>{m.focus_before_exam?.join(", ")}</p>
-            <p><strong>Strength: </strong>{m.strength}</p>
+      <div className="report-summary-block">{r.summary}</div>
+
+      {r.critical_topics?.length > 0 && (
+        <div style={{ marginBottom: "32px" }}>
+          <p className="section-label" style={{ marginBottom: "10px" }}>Critical Before Exam</p>
+          <div className="critical-chips">
+            {r.critical_topics.map(t => (
+              <span key={t} className="critical-chip">{t}</span>
+            ))}
           </div>
-        ))}
+        </div>
+      )}
+
+      <div style={{ marginBottom: "32px" }}>
+        <p className="section-label" style={{ marginBottom: "10px" }}>Action Plans</p>
+        <div className="members-grid">
+          {r.per_member?.map(m => (
+            <div key={m.name} className="member-card">
+              <div className="member-card-head">{m.name}</div>
+              <div className="member-card-body">
+                <ul className="member-focuses">
+                  {m.focus_before_exam?.map(f => <li key={f}>{f}</li>)}
+                </ul>
+                <span className="member-strength-tag">{m.strength}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="next-session-box">
-        <strong>📅 Recommended Next Session: </strong>{r.recommended_next_session}
+      <div className="next-session-card">
+        <p className="next-session-eyebrow">Recommended Next Session</p>
+        <p className="next-session-text">{r.recommended_next_session}</p>
       </div>
 
-      <button className="btn-secondary" onClick={() => window.location.reload()} style={{ marginTop: "2rem" }}>
-        ↩ Start New Session
-      </button>
-    </div>
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <button className="btn btn-outline btn-md" onClick={() => window.location.reload()}>
+          Start New Session
+        </button>
+      </div>
+    </>
   );
 }

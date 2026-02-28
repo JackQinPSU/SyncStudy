@@ -1,19 +1,16 @@
-// ─────────────────────────────────────────
-// Step 1: Collect course info + per-member confidence scores
-// ─────────────────────────────────────────
 import { useState } from "react";
 
 const INIT_TOPICS  = ["Recursion", "Big-O Notation", "Sorting Algorithms", "Graphs", "Dynamic Programming"];
 const INIT_MEMBERS = ["Alice", "Bob", "Carol", "Dave"];
 
 export default function SetupForm({ onSubmit }) {
-  const [course,       setCourse]       = useState("Data Structures & Algorithms");
-  const [examDate,     setExamDate]     = useState("");
-  const [duration,     setDuration]     = useState(60);
-  const [topics,       setTopics]       = useState(INIT_TOPICS);
-  const [topicInput,   setTopicInput]   = useState("");
-  const [memberInput,  setMemberInput]  = useState("");
-  const [members,      setMembers]      = useState(
+  const [course,      setCourse]      = useState("Data Structures & Algorithms");
+  const [examDate,    setExamDate]    = useState("");
+  const [duration,    setDuration]    = useState(60);
+  const [topics,      setTopics]      = useState(INIT_TOPICS);
+  const [topicInput,  setTopicInput]  = useState("");
+  const [memberInput, setMemberInput] = useState("");
+  const [members,     setMembers]     = useState(
     INIT_MEMBERS.map(name => ({
       name,
       scores: Object.fromEntries(INIT_TOPICS.map(t => [t, 3])),
@@ -62,108 +59,155 @@ export default function SetupForm({ onSubmit }) {
     onSubmit({ course, exam_date: examDate, duration_minutes: duration, topics, members });
   }
 
-  const scoreColor = v => ["#e74c3c","#e67e22","#f1c40f","#2ecc71","#27ae60"][v - 1];
+  const scoreBadgeClass = v => `score-badge s${v}`;
 
   return (
-    <div className="card">
-      <h2>Session Setup</h2>
-
-      <label>Course Name</label>
-      <input value={course} onChange={e => setCourse(e.target.value)} />
-
-      <label>Exam Date</label>
-      <input type="date" value={examDate} onChange={e => setExamDate(e.target.value)} />
-
-      <label>Session Duration (minutes)</label>
-      <input
-        type="number" min="15" max="480" step="5"
-        value={duration}
-        onChange={e => setDuration(Number(e.target.value))}
-        style={{ width: "120px" }}
-      />
-
-      <label>Topics</label>
-      <div className="topic-list">
-        {topics.map(t => (
-          <span key={t} className="topic-chip">
-            {t} <button type="button" onClick={() => removeTopic(t)}>×</button>
-          </span>
-        ))}
-      </div>
-      <div className="row">
-        <input
-          placeholder="Add a topic..."
-          value={topicInput}
-          onChange={e => setTopicInput(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addTopic())}
-        />
-        <button type="button" className="btn-add" onClick={addTopic}>Add</button>
+    <form onSubmit={handleSubmit}>
+      <div className="page-head">
+        <p className="page-eyebrow">Step 1 of 4</p>
+        <h1 className="page-title">Set up your session.</h1>
+        <p className="page-sub">
+          Rate each member's confidence per topic — we'll use this to build a personalized plan.
+        </p>
       </div>
 
-      <h3>Confidence Ratings <span style={{fontWeight:400,color:"#888"}}>(1 = lost · 5 = solid)</span></h3>
-      <div className="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Member</th>
-              {topics.map(t => <th key={t}>{t}</th>)}
-              <th style={{width:"36px"}}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {members.map((m, mi) => (
-              <tr key={mi}>
-                <td>
-                  <input
-                    value={m.name}
-                    onChange={e => renameMember(mi, e.target.value)}
-                    style={{ width: "110px", padding: "0.25rem 0.5rem", fontSize: "0.88rem" }}
-                  />
-                </td>
-                {topics.map(t => {
-                  const v = m.scores[t] ?? 3;
-                  return (
-                    <td key={t} style={{ textAlign: "center" }}>
-                      <input
-                        type="range" min="1" max="5" value={v}
-                        onChange={e => updateScore(mi, t, e.target.value)}
-                        style={{ accentColor: scoreColor(v), width: "80px" }}
-                      />
-                      <span className="score-badge" style={{ background: scoreColor(v) }}>{v}</span>
-                    </td>
-                  );
-                })}
-                <td style={{ textAlign: "center" }}>
-                  <button
-                    type="button"
-                    onClick={() => removeMember(mi)}
-                    style={{ background: "none", border: "none", color: "#e74c3c", cursor: "pointer", fontSize: "1.1rem", lineHeight: 1 }}
-                    title="Remove member"
-                  >×</button>
+      <div className="form-row">
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="form-label">Course</label>
+          <input
+            className="form-input"
+            value={course}
+            onChange={e => setCourse(e.target.value)}
+            placeholder="e.g. Data Structures"
+          />
+        </div>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="form-label">Exam Date</label>
+          <input
+            className="form-input"
+            type="date"
+            value={examDate}
+            onChange={e => setExamDate(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label className="form-label">Session Duration</label>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <input
+            className="form-input"
+            type="number"
+            min="15"
+            max="480"
+            step="5"
+            value={duration}
+            onChange={e => setDuration(Number(e.target.value))}
+            style={{ width: "90px" }}
+          />
+          <span style={{ fontSize: "13px", color: "var(--text-3)" }}>minutes</span>
+        </div>
+      </div>
+
+      <div className="divider" />
+
+      <div className="form-group">
+        <label className="form-label">Topics</label>
+        <div className="chips-wrap">
+          {topics.map(t => (
+            <span key={t} className="chip">
+              {t}
+              <button type="button" className="chip-x" onClick={() => removeTopic(t)}>×</button>
+            </span>
+          ))}
+        </div>
+        <div className="add-row">
+          <input
+            className="form-input"
+            placeholder="Add a topic…"
+            value={topicInput}
+            onChange={e => setTopicInput(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addTopic())}
+          />
+          <button type="button" className="btn btn-outline btn-sm" onClick={addTopic}>Add</button>
+        </div>
+      </div>
+
+      <div className="divider" />
+
+      <div className="form-group">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "12px" }}>
+          <label className="form-label" style={{ margin: 0 }}>Confidence Matrix</label>
+          <span style={{ fontSize: "12px", color: "var(--text-3)" }}>1 = lost &nbsp;·&nbsp; 5 = solid</span>
+        </div>
+        <div className="data-table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Member</th>
+                {topics.map(t => <th key={t}>{t}</th>)}
+                <th style={{ width: "40px" }} />
+              </tr>
+            </thead>
+            <tbody>
+              {members.map((m, mi) => (
+                <tr key={mi}>
+                  <td>
+                    <input
+                      className="name-input"
+                      value={m.name}
+                      onChange={e => renameMember(mi, e.target.value)}
+                    />
+                  </td>
+                  {topics.map(t => {
+                    const v = m.scores[t] ?? 3;
+                    return (
+                      <td key={t} className="score-cell">
+                        <input
+                          type="range"
+                          className="score-range"
+                          min="1" max="5" value={v}
+                          onChange={e => updateScore(mi, t, e.target.value)}
+                        />
+                        <span className={scoreBadgeClass(v)}>{v}</span>
+                      </td>
+                    );
+                  })}
+                  <td style={{ textAlign: "center" }}>
+                    <button
+                      type="button"
+                      className="remove-btn"
+                      onClick={() => removeMember(mi)}
+                      title="Remove member"
+                    >×</button>
+                  </td>
+                </tr>
+              ))}
+              <tr className="table-add-row">
+                <td colSpan={topics.length + 2}>
+                  <div className="add-row" style={{ margin: "2px 0" }}>
+                    <input
+                      className="form-input"
+                      placeholder="Add member…"
+                      value={memberInput}
+                      onChange={e => setMemberInput(e.target.value)}
+                      onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addMember())}
+                      style={{ height: "32px", fontSize: "13px" }}
+                    />
+                    <button type="button" className="btn btn-outline btn-sm" onClick={addMember}>Add</button>
+                  </div>
                 </td>
               </tr>
-            ))}
-            <tr>
-              <td colSpan={topics.length + 2}>
-                <div className="row" style={{ margin: 0 }}>
-                  <input
-                    placeholder="New member name..."
-                    value={memberInput}
-                    onChange={e => setMemberInput(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addMember())}
-                    style={{ fontSize: "0.88rem", padding: "0.25rem 0.5rem" }}
-                  />
-                  <button type="button" className="btn-add" onClick={addMember}>Add</button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <button className="btn-primary" onClick={handleSubmit}>
-        Analyze Weaknesses →
-      </button>
-    </div>
+      <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: "4px" }}>
+        <button type="submit" className="btn btn-dark btn-lg">
+          Analyze Weaknesses →
+        </button>
+      </div>
+    </form>
   );
 }

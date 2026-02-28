@@ -1,13 +1,12 @@
-// ─────────────────────────────────────────
-// Root component. Controls which "step" is shown.
-// Steps: setup → heatmap → session → report
-// ─────────────────────────────────────────
 import { useState } from "react";
 import SetupForm   from "./components/SetupForm";
 import Heatmap     from "./components/Heatmap";
 import SessionPlan from "./components/SessionPlan";
 import ReportCard  from "./components/ReportCard";
 import { analyzeWeaknesses, generatePlan, generateReport } from "./api/client";
+
+const STEPS  = ["setup", "heatmap", "session", "report"];
+const LABELS = ["Setup", "Weaknesses", "Session", "Report"];
 
 export default function App() {
   const [step,         setStep]         = useState("setup");
@@ -55,33 +54,55 @@ export default function App() {
     } finally { setLoading(false); }
   }
 
-  const STEPS = ["setup", "heatmap", "session", "report"];
-  const LABELS = ["Setup", "Weaknesses", "Session", "Report"];
+  const currentIdx = STEPS.indexOf(step);
 
   return (
     <div className="app-wrapper">
-      <header>
-        <h1>🧠 Study Orchestrator</h1>
-        <p className="subtitle">AI-powered group study sessions</p>
-
-        {/* Step indicator */}
-        <div className="step-bar">
-          {STEPS.map((s, i) => (
-            <div key={s} className={`step-dot ${step === s ? "active" : STEPS.indexOf(step) > i ? "done" : ""}`}>
-              <span>{i + 1}</span>
-              <small>{LABELS[i]}</small>
-            </div>
-          ))}
+      <header className="app-header">
+        <div className="header-inner">
+          <div className="logo">
+            <div className="logo-dot" />
+            SyncStudy
+          </div>
+          <nav className="step-bar">
+            {STEPS.map((s, i) => {
+              const state = i < currentIdx ? "done" : i === currentIdx ? "active" : "pending";
+              return (
+                <div key={s} className="step-item">
+                  {i > 0 && <div className="step-connector" />}
+                  <div className="step-pip">
+                    <div className={`step-pip-num ${state}`}>{i + 1}</div>
+                    <span className={`step-pip-label ${state}`}>{LABELS[i]}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </nav>
         </div>
       </header>
 
-      {error   && <div className="error-banner">{error}</div>}
-      {loading && <div className="loading-banner">⏳ Thinking...</div>}
+      <main className="main-content">
+        {error && (
+          <div className="error-banner">
+            <span>⚠</span>
+            <span>{error}</span>
+          </div>
+        )}
 
-      {step === "setup"   && <SetupForm onSubmit={handleSetupSubmit} />}
-      {step === "heatmap" && <Heatmap sessionInput={sessionInput} weaknesses={weaknesses} onNext={handleGeneratePlan} />}
-      {step === "session" && <SessionPlan plan={plan} sessionInput={sessionInput} onFinish={handleGenerateReport} />}
-      {step === "report"  && <ReportCard report={report} />}
+        {loading ? (
+          <div className="page-loader">
+            <div className="loader-ring" />
+            <p className="loader-text">Thinking…</p>
+          </div>
+        ) : (
+          <div className="fade-in">
+            {step === "setup"   && <SetupForm onSubmit={handleSetupSubmit} />}
+            {step === "heatmap" && <Heatmap sessionInput={sessionInput} weaknesses={weaknesses} onNext={handleGeneratePlan} />}
+            {step === "session" && <SessionPlan plan={plan} sessionInput={sessionInput} onFinish={handleGenerateReport} />}
+            {step === "report"  && <ReportCard report={report} />}
+          </div>
+        )}
+      </main>
     </div>
   );
 }
