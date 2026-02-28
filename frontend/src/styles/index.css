@@ -360,6 +360,50 @@ body {
   padding: 64px 32px 108px;
 }
 
+/* ── Session bar (join link + presence) ── */
+.session-bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  background: var(--surface);
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--r-lg); padding: 12px 18px; margin-bottom: 28px;
+}
+.session-bar-left { display: flex; align-items: center; gap: 8px; }
+.session-id-label { font-size: 10px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.09em; }
+.session-id-code  { font-size: 14px; font-weight: 700; color: var(--accent); letter-spacing: 0.06em; }
+
+/* ── Presence dots ── */
+.presence-dots { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.presence-dot {
+  background: var(--surface-2); border: 1px solid var(--border-mid);
+  border-radius: var(--r-full); padding: 3px 10px;
+  font-size: 12px; color: var(--text-2); font-weight: 500;
+}
+.presence-dot.self { border-color: var(--accent-border); color: var(--accent); background: var(--accent-light); }
+
+/* ── Live priority panel ── */
+.live-priority-panel {
+  background: var(--surface);
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--r-lg); padding: 14px 18px; margin-bottom: 24px;
+}
+.live-dot {
+  display: inline-block; width: 7px; height: 7px;
+  border-radius: 50%; background: var(--green); margin-left: 7px;
+  animation: pulse-live 2s ease-in-out infinite;
+}
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+}
+.priority-list.compact .priority-item { padding: 6px 10px; }
+
+/* ── Critical topic highlight ── */
+.priority-item.critical { border-left: 3px solid var(--red); padding-left: calc(1rem - 3px); }
+.critical-badge {
+  background: var(--red-light); color: var(--red);
+  border: 1px solid var(--red-border); border-radius: var(--r-sm);
+  font-size: 11px; font-weight: 600; padding: 2px 7px;
+}
+
 /* ═══════════════════════════════════════════
    PAGE HEADINGS
    ═══════════════════════════════════════════ */
@@ -601,7 +645,7 @@ body {
   font-size: 12.5px;
   font-weight: 500;
   color: var(--text-1);
-  transition: border-color 0.18s, background 0.18s, transform 0.18s;
+  transition: border-color 0.18s, background 0.18s, transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .chip:hover {
   border-color: var(--accent-border);
@@ -624,9 +668,9 @@ body {
   font-size: 14px;
   line-height: 1;
   padding: 0;
-  transition: color 0.12s;
+  transition: color 0.12s, background 0.12s, transform 0.1s;
 }
-.chip-x:hover { color: var(--red); }
+.chip-x:hover { color: var(--red); background: var(--red-light); transform: scale(1.2); }
 
 .add-row { display: flex; gap: 8px; align-items: center; }
 .add-row .form-input { flex: 1; }
@@ -644,7 +688,12 @@ body {
   font-family: var(--font);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition:
+    background     0.18s ease,
+    border-color   0.18s ease,
+    color          0.18s ease,
+    box-shadow     0.22s ease,
+    transform      0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
   border: 1.5px solid transparent;
   white-space: nowrap;
   outline: none;
@@ -653,6 +702,18 @@ body {
 }
 .btn:disabled { opacity: 0.38; cursor: not-allowed; pointer-events: none; }
 
+/* Keyboard focus ring */
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Press-down feedback */
+.btn:not(:disabled):active {
+  transform: translateY(1px) scale(0.99) !important;
+  box-shadow: none !important;
+  transition-duration: 0.06s !important;
+}
 .btn-xs { height: 28px; padding: 0 10px; font-size: 12.5px; border-radius: var(--r-sm); }
 .btn-sm { height: 32px; padding: 0 12px; font-size: 13px;   border-radius: var(--r-sm); }
 .btn-md { height: 40px; padding: 0 18px; font-size: 14px; }
@@ -696,6 +757,7 @@ body {
 .btn-ghost:hover:not(:disabled) {
   background: var(--surface-2);
   color: var(--text-1);
+  transform: translateY(-1px);
 }
 
 .btn-accent {
@@ -714,7 +776,11 @@ body {
   color: var(--red);
   border-color: var(--red-border);
 }
-.btn-danger-outline:hover:not(:disabled) { background: var(--red-light); }
+.btn-danger-outline:hover:not(:disabled) {
+  background: var(--red-light);
+  box-shadow: 0 2px 10px rgba(185, 28, 28, 0.12);
+  transform: translateY(-1px);
+}
 
 /* ═══════════════════════════════════════════
    CONFIDENCE MATRIX TABLE
@@ -819,11 +885,12 @@ body {
   line-height: 1;
   padding: 4px 6px;
   border-radius: var(--r-sm);
-  transition: color 0.1s, background 0.1s;
+  transition: color 0.12s, background 0.12s, transform 0.1s;
   display: flex;
   align-items: center;
 }
-.remove-btn:hover { color: var(--red); background: var(--red-light); }
+.remove-btn:hover { color: var(--red); background: var(--red-light); transform: scale(1.15); }
+.remove-btn:active { transform: scale(0.95); }
 
 .name-input {
   width: 120px;
@@ -1130,7 +1197,7 @@ body {
   border: 1.5px solid var(--border);
   border-radius: var(--r-lg);
   overflow: hidden;
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.22s ease;
+  transition: border-color 0.18s ease, box-shadow 0.22s ease, transform 0.15s ease;
 }
 .block-card:hover {
   border-color: var(--border-mid);
@@ -1273,15 +1340,17 @@ body {
   font-size: 13px;
   font-weight: 500;
   color: var(--text-2);
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.18s ease, color 0.18s ease;
 }
 .q-toggle:hover { background: var(--accent-light); color: var(--accent); }
+.q-toggle:active { background: var(--surface-3); }
 
 .q-toggle-chevron {
   font-size: 9px;
   color: var(--text-3);
-  transition: transform 0.25s ease;
+  transition: transform 0.25s cubic-bezier(0.34, 1.2, 0.64, 1), color 0.18s;
 }
+.q-toggle:hover .q-toggle-chevron { color: var(--accent); }
 .q-toggle-chevron.open { transform: rotate(180deg); }
 
 /* ═══════════════════════════════════════════
@@ -1385,9 +1454,16 @@ body {
   font-size: 15px;
   flex-shrink: 0;
   align-self: flex-start;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s, transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s;
 }
-.mic-btn:hover { background: var(--surface-2); border-color: var(--border-strong); }
+.mic-btn:hover {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(28, 25, 23, 0.08);
+}
+.mic-btn:active { transform: scale(0.95); }
+
 .mic-btn.active {
   background: var(--red-light);
   border-color: var(--red-border);
