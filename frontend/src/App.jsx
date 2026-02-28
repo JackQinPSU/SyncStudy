@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SetupForm   from "./components/SetupForm";
 import Heatmap     from "./components/Heatmap";
 import SessionPlan from "./components/SessionPlan";
@@ -16,6 +16,15 @@ export default function App() {
   const [report,       setReport]       = useState(null);
   const [loading,      setLoading]      = useState(false);
   const [error,        setError]        = useState("");
+  const [theme,        setTheme]        = useState("light");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme(t => t === "light" ? "dark" : "light");
+  }
 
   async function handleSetupSubmit(input) {
     setSessionInput(input);
@@ -64,20 +73,33 @@ export default function App() {
             <div className="logo-dot" />
             SyncStudy
           </div>
+
           <nav className="step-bar">
             {STEPS.map((s, i) => {
               const state = i < currentIdx ? "done" : i === currentIdx ? "active" : "pending";
               return (
                 <div key={s} className="step-item">
-                  {i > 0 && <div className="step-connector" />}
+                  {i > 0 && (
+                    <div className={`step-connector${i <= currentIdx ? " filled" : ""}`} />
+                  )}
                   <div className="step-pip">
-                    <div className={`step-pip-num ${state}`}>{i + 1}</div>
+                    <div className={`step-pip-num ${state}`}>
+                      {state === "done" ? "✓" : i + 1}
+                    </div>
                     <span className={`step-pip-label ${state}`}>{LABELS[i]}</span>
                   </div>
                 </div>
               );
             })}
           </nav>
+
+          <div className="header-right">
+            <button className="theme-pill" onClick={toggleTheme} aria-label="Toggle dark mode">
+              <span className="tp-icon">☀</span>
+              <span className="tp-thumb" />
+              <span className="tp-icon">☽</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -92,6 +114,11 @@ export default function App() {
         {loading ? (
           <div className="page-loader">
             <div className="loader-ring" />
+            <div className="loader-dots">
+              <div className="loader-dot" style={{ animationDelay: "0s" }} />
+              <div className="loader-dot" style={{ animationDelay: "0.22s" }} />
+              <div className="loader-dot" style={{ animationDelay: "0.44s" }} />
+            </div>
             <p className="loader-text">Thinking…</p>
           </div>
         ) : (

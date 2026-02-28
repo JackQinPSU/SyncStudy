@@ -17,8 +17,8 @@ export default function ReportCard({ report }) {
       <div className="report-summary-block">{r.summary}</div>
 
       {r.critical_topics?.length > 0 && (
-        <div style={{ marginBottom: "32px" }}>
-          <p className="section-label" style={{ marginBottom: "10px" }}>Critical Before Exam</p>
+        <div style={{ marginBottom: "36px" }}>
+          <p className="section-label" style={{ marginBottom: "12px" }}>Critical Before Exam</p>
           <div className="critical-chips">
             {r.critical_topics.map(t => (
               <span key={t} className="critical-chip">{t}</span>
@@ -27,12 +27,17 @@ export default function ReportCard({ report }) {
         </div>
       )}
 
-      <div style={{ marginBottom: "32px" }}>
-        <p className="section-label" style={{ marginBottom: "10px" }}>Action Plans</p>
+      <div style={{ marginBottom: "36px" }}>
+        <p className="section-label" style={{ marginBottom: "12px" }}>Action Plans</p>
         <div className="members-grid">
           {r.per_member?.map(m => (
             <div key={m.name} className="member-card">
-              <div className="member-card-head">{m.name}</div>
+              <div className="member-card-head">
+                <div className="member-avatar">
+                  {m.name.slice(0, 2).toUpperCase()}
+                </div>
+                {m.name}
+              </div>
               <div className="member-card-body">
                 <ul className="member-focuses">
                   {m.focus_before_exam?.map(f => <li key={f}>{f}</li>)}
