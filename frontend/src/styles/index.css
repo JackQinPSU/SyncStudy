@@ -399,10 +399,14 @@ body {
   font-size: 12.5px;
   font-weight: 500;
   color: var(--text-1);
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.18s, transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.chip:hover { border-color: var(--border-strong); }
+.chip:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 6px rgba(28, 25, 23, 0.07);
+  transform: translateY(-1px);
+}
 
 .chip-x {
   display: flex;
@@ -419,10 +423,14 @@ body {
   font-size: 13px;
   line-height: 1;
   padding: 0;
-  transition: color 0.1s, background 0.1s;
+  transition: color 0.12s, background 0.12s, transform 0.1s;
 }
 
-.chip-x:hover { color: var(--text-1); background: var(--border-mid); }
+.chip-x:hover {
+  color: var(--red);
+  background: var(--red-light);
+  transform: scale(1.2);
+}
 
 /* ── Add row ── */
 .add-row {
@@ -446,14 +454,33 @@ body {
   font-family: var(--font);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition:
+    background     0.18s ease,
+    border-color   0.18s ease,
+    color          0.18s ease,
+    box-shadow     0.22s ease,
+    transform      0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
   border: 1px solid transparent;
   white-space: nowrap;
   outline: none;
   text-decoration: none;
+  position: relative;
 }
 
 .btn:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+/* Keyboard focus ring */
+.btn:focus-visible {
+  outline: 2px solid var(--text-1);
+  outline-offset: 3px;
+}
+
+/* Press-down feedback — overrides hover lift */
+.btn:not(:disabled):active {
+  transform: translateY(1px) scale(0.99) !important;
+  box-shadow: none !important;
+  transition-duration: 0.06s !important;
+}
 
 /* sizes */
 .btn-xs { height: 28px; padding: 0 10px; font-size: 12.5px; border-radius: var(--r-sm); }
@@ -467,7 +494,15 @@ body {
   color: white;
   border-color: var(--text-1);
 }
-.btn-dark:hover:not(:disabled) { background: #2D2925; }
+.btn-dark:hover:not(:disabled) {
+  background: #2D2925;
+  box-shadow: 0 4px 14px rgba(28, 25, 23, 0.22), 0 1px 3px rgba(28, 25, 23, 0.1);
+  transform: translateY(-1px);
+}
+.btn-lg.btn-dark:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(28, 25, 23, 0.26), 0 2px 6px rgba(28, 25, 23, 0.1);
+}
 
 .btn-outline {
   background: var(--surface);
@@ -477,6 +512,8 @@ body {
 .btn-outline:hover:not(:disabled) {
   background: var(--surface-2);
   border-color: var(--border-strong);
+  box-shadow: 0 2px 8px rgba(28, 25, 23, 0.07);
+  transform: translateY(-1px);
 }
 
 .btn-ghost {
@@ -487,6 +524,7 @@ body {
 .btn-ghost:hover:not(:disabled) {
   background: var(--surface-2);
   color: var(--text-1);
+  transform: translateY(-1px);
 }
 
 .btn-danger-outline {
@@ -494,7 +532,11 @@ body {
   color: var(--red);
   border-color: var(--red-border);
 }
-.btn-danger-outline:hover:not(:disabled) { background: var(--red-light); }
+.btn-danger-outline:hover:not(:disabled) {
+  background: var(--red-light);
+  box-shadow: 0 2px 10px rgba(185, 28, 28, 0.12);
+  transform: translateY(-1px);
+}
 
 /* ═══════════════════════════════════════════
    DATA TABLE (confidence matrix)
@@ -592,11 +634,12 @@ body {
   line-height: 1;
   padding: 4px 6px;
   border-radius: var(--r-sm);
-  transition: color 0.1s, background 0.1s;
+  transition: color 0.12s, background 0.12s, transform 0.1s;
   display: flex;
   align-items: center;
 }
-.remove-btn:hover { color: var(--red); background: var(--red-light); }
+.remove-btn:hover { color: var(--red); background: var(--red-light); transform: scale(1.15); }
+.remove-btn:active { transform: scale(0.95); }
 
 .name-input {
   width: 120px;
@@ -769,12 +812,13 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   overflow: hidden;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.18s ease, box-shadow 0.22s ease, transform 0.15s ease;
 }
 
 .block-card:hover {
   border-color: var(--border-mid);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .block-header {
@@ -870,7 +914,7 @@ body {
   font-size: 13px;
   font-weight: 500;
   color: var(--text-2);
-  transition: all 0.15s;
+  transition: background 0.18s ease, color 0.18s ease;
 }
 
 .q-toggle:hover {
@@ -878,12 +922,15 @@ body {
   color: var(--text-1);
 }
 
+.q-toggle:active { background: var(--surface-3); }
+
 .q-toggle-chevron {
   font-size: 9px;
   color: var(--text-3);
-  transition: transform 0.2s;
+  transition: transform 0.25s cubic-bezier(0.34, 1.2, 0.64, 1), color 0.18s;
 }
 
+.q-toggle:hover .q-toggle-chevron { color: var(--text-2); }
 .q-toggle-chevron.open { transform: rotate(180deg); }
 
 /* ═══════════════════════════════════════════
@@ -984,10 +1031,16 @@ body {
   font-size: 15px;
   flex-shrink: 0;
   align-self: flex-start;
-  transition: all 0.15s;
+  transition: background 0.15s, border-color 0.15s, transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s;
 }
 
-.mic-btn:hover { background: var(--surface-2); border-color: var(--border-strong); }
+.mic-btn:hover {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(28, 25, 23, 0.08);
+}
+.mic-btn:active { transform: scale(0.95); }
 
 .mic-btn.active {
   background: var(--red-light);
