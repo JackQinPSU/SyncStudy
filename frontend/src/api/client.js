@@ -13,6 +13,12 @@ async function post(path, body) {
   return res.json();
 }
 
+async function get(path) {
+  const res = await fetch(`${BASE}${path}`);
+  if (!res.ok) throw new Error(`API error on ${path}: ${res.status}`);
+  return res.json();
+}
+
 export const analyzeWeaknesses = (sessionInput) =>
   post("/analyze", sessionInput);
 
@@ -27,3 +33,8 @@ export const generateReport = (sessionInput, prioritizedTopics) =>
 
 export const gradeAnswer = (question, correctAnswer, userAnswer) =>
   post("/grade", { question, correct_answer: correctAnswer, user_answer: userAnswer });
+
+export const pollSession  = (id)                => get(`/sessions/${id}`);
+export const joinSession  = (id, name)          => post(`/sessions/${id}/join`,      { name });
+export const heartbeat    = (id, name)          => post(`/sessions/${id}/heartbeat`, { name });
+export const recordAnswer = (id, topic, result) => post(`/sessions/${id}/answer`,    { topic, result });

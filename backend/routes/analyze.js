@@ -1,31 +1,24 @@
 // ─────────────────────────────────────────
-// Pure logic — no GPT. Calculates weakness scores from member input.
-// Expects: { topics: string[], members: [{ name, scores: { topic: number } }] }
+// Pure logic — no GPT. Multi-signal weakness scoring + session creation.
+// Expects full sessionInput: { topics, members, duration_minutes?, ... }
+// Returns: { sessionId, topics: [...] }
 // ─────────────────────────────────────────
 import { Router } from "express";
+import { prioritizeTopics } from "../services/prioritize.js";
+import { createSession } from "../store.js";
+
 const router = Router();
 
 router.post("/", (req, res) => {
-  const { topics, members } = req.body;
+  const { topics, members, duration_minutes = 60 } = req.body;
 
   if (!topics?.length || !members?.length)
     return res.status(400).json({ error: "topics and members are required" });
 
-  const results = topics.map(topic => {
-    const scores      = members.map(m => m.scores?.[topic] ?? 3);
-    const avg         = scores.reduce((a, b) => a + b, 0) / scores.length;
-    const weakMembers = members
-      .filter(m => (m.scores?.[topic] ?? 3) <= 2)
-      .map(m => m.name);
+  const prioritized = prioritizeTopics(topics, members, duration_minutes);
+  const session     = createSession(req.body, prioritized);
 
-    return { topic, avg_score: Math.round(avg * 100) / 100, weak_members: weakMembers };
-  });
-
-  // Sort lowest avg first (highest priority)
-  results.sort((a, b) => a.avg_score - b.avg_score);
-  results.forEach((r, i) => (r.priority = i + 1));
-
-  res.json(results);
+  res.json({ sessionId: session.id, topics: prioritized });
 });
 
 export default router;

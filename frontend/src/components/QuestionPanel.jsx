@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { generateQuestions, gradeAnswer } from "../api/client";
 import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 
-export default function QuestionPanel({ topic, course }) {
+export default function QuestionPanel({ topic, course, onAnswer }) {
   const [questions,    setQuestions]    = useState([]);
   const [loading,      setLoading]      = useState(false);
   const [depth,        setDepth]        = useState("normal");
@@ -43,6 +43,7 @@ export default function QuestionPanel({ topic, course }) {
     try {
       const res = await gradeAnswer(q.question, q.answer, userAnswers[i]);
       setResults(r => ({ ...r, [i]: res }));
+      onAnswer?.(topic, res.result);
     } catch {
       setResults(r => ({ ...r, [i]: { result: "incorrect", feedback: "Could not grade — check backend." } }));
     } finally {

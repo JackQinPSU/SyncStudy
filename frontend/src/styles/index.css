@@ -194,6 +194,48 @@ body {
   animation: fadeUp 0.25s ease;
 }
 
+/* ── Session bar (join link + presence) ── */
+.session-bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  background: #11141e; border: 1px solid #2a2d3a;
+  border-radius: 10px; padding: 10px 16px; margin-bottom: 28px;
+}
+.session-bar-left { display: flex; align-items: center; gap: 8px; }
+.session-id-label { font-size: 0.72rem; color: #555; text-transform: uppercase; letter-spacing: 0.05em; }
+.session-id-code  { font-size: 1rem; font-weight: 700; color: #4a6cf7; letter-spacing: 0.08em; }
+
+/* ── Presence dots ── */
+.presence-dots { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.presence-dot {
+  background: #1e2130; border: 1px solid #3a3d4a;
+  border-radius: 20px; padding: 3px 10px;
+  font-size: 0.78rem; color: #ccc;
+}
+.presence-dot.self { border-color: #4a6cf7; color: #4a6cf7; }
+
+/* ── Live priority panel ── */
+.live-priority-panel {
+  background: #11141e; border: 1px solid #2a2d3a;
+  border-radius: 10px; padding: 14px 16px; margin-bottom: 24px;
+}
+.live-dot {
+  display: inline-block; width: 7px; height: 7px;
+  border-radius: 50%; background: #27ae60; margin-left: 7px;
+  animation: pulse-live 2s ease-in-out infinite;
+}
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+}
+.priority-list.compact .priority-item { padding: 6px 10px; }
+
+/* ── Critical topic highlight ── */
+.priority-item.critical { border-left: 3px solid #e74c3c; padding-left: calc(1rem - 3px); }
+.critical-badge {
+  background: #e74c3c22; color: #e74c3c;
+  border: 1px solid #e74c3c44; border-radius: 4px;
+  font-size: 0.68rem; font-weight: 600; padding: 1px 6px;
+}
+
 /* ═══════════════════════════════════════════
    LOADING & ERROR
    ═══════════════════════════════════════════ */
